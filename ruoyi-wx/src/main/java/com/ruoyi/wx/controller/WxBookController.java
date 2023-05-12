@@ -12,6 +12,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -68,6 +70,33 @@ public class WxBookController extends BaseController
     {
         return success(wxBookService.selectWxBookById(id));
     }
+
+
+    /**
+     * 新增图书信息管理
+     */
+    @PreAuthorize("@ss.hasPermi('wx:book:add')")
+    @Log(title = "图书信息管理", businessType = BusinessType.INSERT)
+    @PostMapping("/import_by_excel")
+    public AjaxResult addByExcel(MultipartFile file) throws Exception
+    {
+        ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
+        List<WxBook> bookList = util.importExcel(file.getInputStream());
+        int successCounter = 0;
+        int failedCounter = 0;
+        for (WxBook wxBook : bookList) {
+            try {
+                wxBookService.insertWxBook(wxBook);
+                successCounter++;
+            } catch (Exception e) {
+                failedCounter++;
+                continue;
+            }
+        }
+        return success("插入成功：" + successCounter + ":条，插入失败：" + failedCounter + "条");
+        // return toAjax(wxBookService.insertWxBook(wxBook));
+    }
+
 
     /**
      * 新增图书信息管理

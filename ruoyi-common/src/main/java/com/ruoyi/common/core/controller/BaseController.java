@@ -141,12 +141,12 @@ public class BaseController
     /**
      * 响应返回结果
      * 
-     * @param rows 影响行数
+     * @param i 影响行数
      * @return 操作结果
      */
-    protected AjaxResult toAjax(int rows)
+    protected AjaxResult toAjax(int i)
     {
-        return rows > 0 ? AjaxResult.success() : AjaxResult.error();
+        return i > 0 ? AjaxResult.success() : AjaxResult.error();
     }
 
     /**
