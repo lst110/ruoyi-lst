@@ -175,7 +175,6 @@
                 <artifactId>ruoyi-wx</artifactId>
                 <version>${ruoyi.version}</version>
             </dependency>
-
         </dependencies>
     </dependencyManagement>
 
