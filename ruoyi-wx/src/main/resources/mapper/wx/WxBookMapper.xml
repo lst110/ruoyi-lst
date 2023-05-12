@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.wx.mapper.WxBookMapper">
+    
+    <resultMap type="WxBook" id="WxBookResult">
+        <result property="id"    column="id"    />
+        <result property="bookName"    column="book_name"    />
+        <result property="author"    column="author"    />
+        <result property="isbn"    column="isbn"    />
+        <result property="publishing"    column="publishing"    />
+        <result property="edition"    column="edition"    />
+        <result property="publishTime"    column="publish_time"    />
+        <result property="cip"    column="cip"    />
+        <result property="publishNumber"    column="publish_number"    />
+    </resultMap>
+
+    <sql id="selectWxBookVo">
+        select id, book_name, author, isbn, publishing, edition, publish_time, cip, publish_number from wx_book
+    </sql>
+
+    <select id="selectWxBookList" parameterType="WxBook" resultMap="WxBookResult">
+        <include refid="selectWxBookVo"/>
+        <where>  
+            <if test="bookName != null  and bookName != ''"> and book_name like concat('%', #{bookName}, '%')</if>
+            <if test="author != null  and author != ''"> and author = #{author}</if>
+            <if test="isbn != null  and isbn != ''"> and isbn = #{isbn}</if>
+            <if test="publishing != null  and publishing != ''"> and publishing = #{publishing}</if>
+            <if test="edition != null  and edition != ''"> and edition = #{edition}</if>
+            <if test="publishTime != null "> and publish_time = #{publishTime}</if>
+            <if test="cip != null  and cip != ''"> and cip = #{cip}</if>
+            <if test="publishNumber != null "> and publish_number = #{publishNumber}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxBookById" parameterType="String" resultMap="WxBookResult">
+        <include refid="selectWxBookVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWxBook" parameterType="WxBook">
+        insert into wx_book
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="bookName != null">book_name,</if>
+            <if test="author != null">author,</if>
+            <if test="isbn != null">isbn,</if>
+            <if test="publishing != null">publishing,</if>
+            <if test="edition != null">edition,</if>
+            <if test="publishTime != null">publish_time,</if>
+            <if test="cip != null">cip,</if>
+            <if test="publishNumber != null">publish_number,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="bookName != null">#{bookName},</if>
+            <if test="author != null">#{author},</if>
+            <if test="isbn != null">#{isbn},</if>
+            <if test="publishing != null">#{publishing},</if>
+            <if test="edition != null">#{edition},</if>
+            <if test="publishTime != null">#{publishTime},</if>
+            <if test="cip != null">#{cip},</if>
+            <if test="publishNumber != null">#{publishNumber},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxBook" parameterType="WxBook">
+        update wx_book
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bookName != null">book_name = #{bookName},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="isbn != null">isbn = #{isbn},</if>
+            <if test="publishing != null">publishing = #{publishing},</if>
+            <if test="edition != null">edition = #{edition},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="cip != null">cip = #{cip},</if>
+            <if test="publishNumber != null">publish_number = #{publishNumber},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWxBookById" parameterType="String">
+        delete from wx_book where id = #{id}
+    </delete>
+
+    <delete id="deleteWxBookByIds" parameterType="String">
+        delete from wx_book where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

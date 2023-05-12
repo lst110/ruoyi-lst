@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.wx.mapper.WxLogMapper">
+    
+    <resultMap type="WxLog" id="WxLogResult">
+        <result property="id"    column="id"    />
+        <result property="code_id"    column="code_id"    />
+        <result property="userId"    column="user_id"    />
+        <result property="ip"    column="ip"    />
+        <result property="number"    column="number"    />
+        <result property="time"    column="time"    />
+        <result property="createIp"    column="create_ip"    />
+        <result property="createTime"    column="create_time"    />
+    </resultMap>
+
+    <sql id="selectWxLogVo">
+        select id, code_id, user_id, ip, number, time, create_ip, create_time from wx_log
+    </sql>
+
+    <select id="selectWxLogList" parameterType="WxLog" resultMap="WxLogResult">
+        <include refid="selectWxLogVo"/>
+        <where>  
+            <if test="code_id != null  and code_id != ''"> and code_id = #{code_id}</if>
+            <if test="userId != null  and userId != ''"> and user_id = #{userId}</if>
+            <if test="ip != null  and ip != ''"> and ip = #{ip}</if>
+            <if test="number != null "> and number = #{number}</if>
+            <if test="time != null "> and time = #{time}</if>
+            <if test="createIp != null  and createIp != ''"> and create_ip = #{createIp}</if>
+            <if test="createTime != null "> and create_time = #{createTime}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxLogById" parameterType="String" resultMap="WxLogResult">
+        <include refid="selectWxLogVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWxLog" parameterType="WxLog">
+        insert into wx_log
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="code_id != null">code_id,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="ip != null">ip,</if>
+            <if test="number != null">number,</if>
+            <if test="time != null">time,</if>
+            <if test="createIp != null">create_ip,</if>
+            <if test="createTime != null">create_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="code_id != null">#{code_id},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="ip != null">#{ip},</if>
+            <if test="number != null">#{number},</if>
+            <if test="time != null">#{time},</if>
+            <if test="createIp != null">#{createIp},</if>
+            <if test="createTime != null">#{createTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxLog" parameterType="WxLog">
+        update wx_log
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="code_id != null">code_id = #{code_id},</if>
+            <if test="userId != null">user_id = #{userId},</if>
+            <if test="ip != null">ip = #{ip},</if>
+            <if test="number != null">number = #{number},</if>
+            <if test="time != null">time = #{time},</if>
+            <if test="createIp != null">create_ip = #{createIp},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWxLogById" parameterType="String">
+        delete from wx_log where id = #{id}
+    </delete>
+
+    <delete id="deleteWxLogByIds" parameterType="String">
+        delete from wx_log where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

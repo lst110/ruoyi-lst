@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.wx.mapper.WxCodeMapper">
+    
+    <resultMap type="WxCode" id="WxCodeResult">
+        <result property="id"    column="id"    />
+        <result property="book_id"    column="book_id"    />
+        <result property="createUser"    column="create_user"    />
+        <result property="codeStatus"    column="code_status"    />
+        <result property="createLog"    column="create_log"    />
+        <result property="logId"    column="log_id"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectWxCodeVo">
+        select id, book_id, create_user, code_status, create_log, log_id, remark from wx_code
+    </sql>
+
+    <select id="selectWxCodeList" parameterType="WxCode" resultMap="WxCodeResult">
+        <include refid="selectWxCodeVo"/>
+        <where>  
+            <if test="book_id != null  and book_id != ''"> and book_id = #{book_id}</if>
+            <if test="createUser != null  and createUser != ''"> and create_user = #{createUser}</if>
+            <if test="codeStatus != null  and codeStatus != ''"> and code_status = #{codeStatus}</if>
+            <if test="createLog != null  and createLog != ''"> and create_log = #{createLog}</if>
+            <if test="logId != null  and logId != ''"> and log_id = #{logId}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxCodeById" parameterType="String" resultMap="WxCodeResult">
+        <include refid="selectWxCodeVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWxCode" parameterType="WxCode">
+        insert into wx_code
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="book_id != null and book_id != ''">book_id,</if>
+            <if test="createUser != null">create_user,</if>
+            <if test="codeStatus != null">code_status,</if>
+            <if test="createLog != null">create_log,</if>
+            <if test="logId != null">log_id,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="book_id != null and book_id != ''">#{book_id},</if>
+            <if test="createUser != null">#{createUser},</if>
+            <if test="codeStatus != null">#{codeStatus},</if>
+            <if test="createLog != null">#{createLog},</if>
+            <if test="logId != null">#{logId},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxCode" parameterType="WxCode">
+        update wx_code
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="book_id != null and book_id != ''">book_id = #{book_id},</if>
+            <if test="createUser != null">create_user = #{createUser},</if>
+            <if test="codeStatus != null">code_status = #{codeStatus},</if>
+            <if test="createLog != null">create_log = #{createLog},</if>
+            <if test="logId != null">log_id = #{logId},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWxCodeById" parameterType="String">
+        delete from wx_code where id = #{id}
+    </delete>
+
+    <delete id="deleteWxCodeByIds" parameterType="String">
+        delete from wx_code where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

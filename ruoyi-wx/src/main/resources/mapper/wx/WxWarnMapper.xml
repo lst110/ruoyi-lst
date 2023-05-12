@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.wx.mapper.WxWarnMapper">
+    
+    <resultMap type="WxWarn" id="WxWarnResult">
+        <result property="id"    column="id"    />
+        <result property="warn_qrid"    column="warn_qrid"    />
+        <result property="warn_num"    column="warn_num"    />
+        <result property="warn_ip"    column="warn_ip"    />
+        <result property="warn_state"    column="warn_state"    />
+        <result property="warn_time"    column="warn_time"    />
+        <result property="warn_user"    column="warn_user"    />
+    </resultMap>
+
+    <sql id="selectWxWarnVo">
+        select id, warn_qrid, warn_num, warn_ip, warn_state, warn_time, warn_user from wx_warn
+    </sql>
+
+    <select id="selectWxWarnList" parameterType="WxWarn" resultMap="WxWarnResult">
+        <include refid="selectWxWarnVo"/>
+        <where>  
+            <if test="warn_num != null "> and warn_num = #{warn_num}</if>
+            <if test="warn_state != null  and warn_state != ''"> and warn_state = #{warn_state}</if>
+            <if test="warn_time != null "> and warn_time = #{warn_time}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxWarnById" parameterType="Long" resultMap="WxWarnResult">
+        <include refid="selectWxWarnVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWxWarn" parameterType="WxWarn">
+        insert into wx_warn
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="warn_qrid != null">warn_qrid,</if>
+            <if test="warn_num != null">warn_num,</if>
+            <if test="warn_ip != null">warn_ip,</if>
+            <if test="warn_state != null">warn_state,</if>
+            <if test="warn_time != null">warn_time,</if>
+            <if test="warn_user != null">warn_user,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="warn_qrid != null">#{warn_qrid},</if>
+            <if test="warn_num != null">#{warn_num},</if>
+            <if test="warn_ip != null">#{warn_ip},</if>
+            <if test="warn_state != null">#{warn_state},</if>
+            <if test="warn_time != null">#{warn_time},</if>
+            <if test="warn_user != null">#{warn_user},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxWarn" parameterType="WxWarn">
+        update wx_warn
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="warn_qrid != null">warn_qrid = #{warn_qrid},</if>
+            <if test="warn_num != null">warn_num = #{warn_num},</if>
+            <if test="warn_ip != null">warn_ip = #{warn_ip},</if>
+            <if test="warn_state != null">warn_state = #{warn_state},</if>
+            <if test="warn_time != null">warn_time = #{warn_time},</if>
+            <if test="warn_user != null">warn_user = #{warn_user},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWxWarnById" parameterType="Long">
+        delete from wx_warn where id = #{id}
+    </delete>
+
+    <delete id="deleteWxWarnByIds" parameterType="String">
+        delete from wx_warn where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

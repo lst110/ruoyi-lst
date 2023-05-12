@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.wx.mapper.WxFeedbackMapper">
+    
+    <resultMap type="WxFeedback" id="WxFeedbackResult">
+        <result property="id"    column="id"    />
+        <result property="feedback_content"    column="feedback_content"    />
+        <result property="feedback_user"    column="feedback_user"    />
+        <result property="feedback_time"    column="feedback_time"    />
+        <result property="feedback_state"    column="feedback_state"    />
+    </resultMap>
+
+    <sql id="selectWxFeedbackVo">
+        select id, feedback_content, feedback_user, feedback_time, feedback_state from wx_feedback
+    </sql>
+
+    <select id="selectWxFeedbackList" parameterType="WxFeedback" resultMap="WxFeedbackResult">
+        <include refid="selectWxFeedbackVo"/>
+        <where>  
+            <if test="feedback_content != null  and feedback_content != ''"> and feedback_content = #{feedback_content}</if>
+            <if test="feedback_user != null  and feedback_user != ''"> and feedback_user = #{feedback_user}</if>
+            <if test="feedback_state != null  and feedback_state != ''"> and feedback_state = #{feedback_state}</if>
+        </where>
+    </select>
+    
+    <select id="selectWxFeedbackById" parameterType="String" resultMap="WxFeedbackResult">
+        <include refid="selectWxFeedbackVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertWxFeedback" parameterType="WxFeedback">
+        insert into wx_feedback
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="feedback_content != null">feedback_content,</if>
+            <if test="feedback_user != null">feedback_user,</if>
+            <if test="feedback_time != null">feedback_time,</if>
+            <if test="feedback_state != null">feedback_state,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="feedback_content != null">#{feedback_content},</if>
+            <if test="feedback_user != null">#{feedback_user},</if>
+            <if test="feedback_time != null">#{feedback_time},</if>
+            <if test="feedback_state != null">#{feedback_state},</if>
+         </trim>
+    </insert>
+
+    <update id="updateWxFeedback" parameterType="WxFeedback">
+        update wx_feedback
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="feedback_content != null">feedback_content = #{feedback_content},</if>
+            <if test="feedback_user != null">feedback_user = #{feedback_user},</if>
+            <if test="feedback_time != null">feedback_time = #{feedback_time},</if>
+            <if test="feedback_state != null">feedback_state = #{feedback_state},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteWxFeedbackById" parameterType="String">
+        delete from wx_feedback where id = #{id}
+    </delete>
+
+    <delete id="deleteWxFeedbackByIds" parameterType="String">
+        delete from wx_feedback where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
