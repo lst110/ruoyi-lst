@@ -117,9 +117,13 @@ service.interceptors.response.use(res => {
 )
 
 // 通用下载方法
-export function download(url, params, filename, config) {
+export function download(url, params, filename, config, method = 'post') {
   downloadLoadingInstance = Loading.service({ text: "正在下载数据，请稍候", spinner: "el-icon-loading", background: "rgba(0, 0, 0, 0.7)", })
-  return service.post(url, params, {
+  let http_call = service.post;
+  if(method == 'get') {
+    http_call = service.get;
+  }
+  return http_call(url, params, {
     transformRequest: [(params) => { return tansParams(params) }],
     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     responseType: 'blob',
@@ -142,5 +146,6 @@ export function download(url, params, filename, config) {
     downloadLoadingInstance.close();
   })
 }
+
 
 export default service

@@ -12,14 +12,7 @@ import java.util.zip.ZipOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.ruoyi.common.annotation.Log;
@@ -52,8 +45,6 @@ public class WxBookController extends BaseController
     private IWxBookService wxBookService;
     @Autowired
     private IWxCodeService wxCodeService;
-    @Autowired
-    private HttpServletResponse httpServletResponse;
     /**
      * 查询图书信息管理列表
      */
@@ -117,7 +108,9 @@ public class WxBookController extends BaseController
     /**
      * 导入模板
      */
-    @PostMapping("/importTemplate")
+    @PreAuthorize("@ss.hasPermi('wx:book:export')")
+    @GetMapping("/importTemplate")
+    @ResponseBody
     public AjaxResult importTemplate()
     {
         ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
@@ -164,8 +157,8 @@ public class WxBookController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('wx:book:export')")
     @Log(title = "图书信息管理", businessType = BusinessType.DELETE)
-	@PostMapping("/export_qrcode/{id}")
-    public void exportQrcode(@PathVariable String id) throws IOException
+	@GetMapping("/export_qrcode/{id}")
+    public void exportQrcode(HttpServletResponse httpServletResponse,@PathVariable String id) throws IOException
     {
         // 先校验图书是否存在
         WxBook book =  wxBookService.selectWxBookById(id);

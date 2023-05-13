@@ -122,8 +122,18 @@
           size="mini"
           @click="handleExport"
           v-hasPermi="['wx:book:export']"
-        >导出</el-button>
+        >导出图书信息</el-button>
       </el-col>
+      <el-col :span="1.5">
+              <el-button
+                type="warning"
+                plain
+                icon="el-icon-download"
+                size="mini"
+                @click="handleExportQr"
+                v-hasPermi="['wx:book:export']"
+              >生成防伪码zip</el-button>
+            </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -368,8 +378,8 @@ handleImport() {
 },
     /** 下载模板操作 */
     importTemplate() {
-      this.download('/wx/book/importTemplate', {
-      }, `user_template_${new Date().getTime()}.xlsx`)
+      this.download('wx/book/importTemplate', {
+      }, `book_template_${new Date().getTime()}.xlsx`,{},'get')
     },
 // 文件上传中处理
 handleFileUploadProgress(event, file, fileList) {
@@ -434,7 +444,13 @@ submitFileForm() {
       this.download('wx/book/export', {
         ...this.queryParams
       }, `book_${new Date().getTime()}.xlsx`)
-    }
+    },
+        /** 生成防伪码zip按钮操作 */
+        handleExportQr() {
+          this.download('wx/book/export_qrcode/{id}', {
+            ...this.queryParams
+          }, `book_${new Date().getTime()}.xlsx`,{},'get')
+        }
   }
 };
 </script>
