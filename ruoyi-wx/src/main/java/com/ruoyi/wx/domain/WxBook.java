@@ -18,7 +18,7 @@ public class WxBook extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 图书id */
-    private String id;
+    private Long id;
 
     /** 图书名称 */
     @Excel(name = "图书名称")
@@ -42,7 +42,7 @@ public class WxBook extends BaseEntity
 
     /** 出版时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "出版时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @Excel(name = "出版时间", width = 30, dateFormat = "yyyy/MM/dd")
     private Date publishTime;
 
     /** CIP */
@@ -53,12 +53,12 @@ public class WxBook extends BaseEntity
     @Excel(name = "出版数量")
     private Long publishNumber;
 
-    public void setId(String id) 
+    public void setId(Long id)
     {
         this.id = id;
     }
 
-    public String getId() 
+    public Long getId()
     {
         return id;
     }

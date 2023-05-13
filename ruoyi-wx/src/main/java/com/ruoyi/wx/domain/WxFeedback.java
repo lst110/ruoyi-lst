@@ -18,7 +18,7 @@ public class WxFeedback extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** ID */
-    private String id;
+    private Long id;
 
     /** 反馈内容 */
     @Excel(name = "反馈内容")
@@ -37,12 +37,12 @@ public class WxFeedback extends BaseEntity
     @Excel(name = "是否处理")
     private String feedback_state;
 
-    public void setId(String id) 
+    public void setId(Long id)
     {
         this.id = id;
     }
 
-    public String getId() 
+    public Long getId()
     {
         return id;
     }

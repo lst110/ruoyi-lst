@@ -18,7 +18,7 @@ public class WxLog extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** ID */
-    private String id;
+    private Long id;
 
     /** 码id */
     @Excel(name = "码id")
@@ -45,12 +45,12 @@ public class WxLog extends BaseEntity
     @Excel(name = "首次扫码ip")
     private String createIp;
 
-    public void setId(String id) 
+    public void setId(Long id)
     {
         this.id = id;
     }
 
-    public String getId() 
+    public Long getId()
     {
         return id;
     }

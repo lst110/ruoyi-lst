@@ -106,6 +106,7 @@ public class WxBookController extends BaseController
                 wxBookService.insertWxBook(wxBook);
                 successCounter++;
             } catch (Exception e) {
+                e.printStackTrace();
                 failedCounter++;
                 continue;
             }

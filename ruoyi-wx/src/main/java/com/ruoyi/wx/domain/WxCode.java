@@ -16,7 +16,7 @@ public class WxCode extends BaseEntity
     private static final long serialVersionUID = 1L;
 
     /** 码id */
-    private String id;
+    private Long id;
 
     /** 图书id */
     @Excel(name = "图书id")
@@ -38,12 +38,12 @@ public class WxCode extends BaseEntity
     @Excel(name = "本次扫码记录id")
     private String logId;
 
-    public void setId(String id) 
+    public void setId(Long id)
     {
         this.id = id;
     }
 
-    public String getId() 
+    public Long getId()
     {
         return id;
     }
