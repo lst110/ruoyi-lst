@@ -129,6 +129,12 @@ export function download(url, params, filename, config, method = 'post') {
     responseType: 'blob',
     ...config
   }).then(async (data) => {
+    console.log(data)
+    if(data.hasOwnProperty("data")) {
+      if(blobValidate(data)) {
+        data = data.data;
+      }
+    }
     const isBlob = blobValidate(data);
     if (isBlob) {
       const blob = new Blob([data])

@@ -110,12 +110,13 @@ public class WxBookController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('wx:book:export')")
     @GetMapping("/importTemplate")
-    @ResponseBody
-    public AjaxResult importTemplate()
+    public void importTemplate(HttpServletResponse response)
     {
         ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
-        return util.exportExcel(new ArrayList<WxBook>(),"sheet1");
+//        return util.exportExcel(new ArrayList<WxBook>(),"sheet1");
+        util.exportExcel(response,new ArrayList<WxBook>(),"sheet1");
     }
+
 
     /**
      * 新增图书信息管理
