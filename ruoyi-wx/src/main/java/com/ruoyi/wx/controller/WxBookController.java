@@ -121,7 +121,7 @@ public class WxBookController extends BaseController
     public AjaxResult importTemplate()
     {
         ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
-        return util.importTemplateExcel("书籍数据");
+        return util.exportExcel(new ArrayList<WxBook>(),"sheet1");
     }
 
     /**
