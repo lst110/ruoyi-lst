@@ -405,6 +405,18 @@ function handleAdd(row) {
   open.value = true;
   title.value = "添加${functionName}";
 }
+/** 导入按钮操作 */
+function handleImport(row) {
+  reset();
+  getTreeselect();
+  if (row != null && row.${treeCode}) {
+    form.value.${treeParentCode} = row.${treeCode};
+  } else {
+    form.value.${treeParentCode} = 0;
+  }
+  open.value = true;
+  title.value = "添加${functionName}";
+}
 
 /** 展开/折叠操作 */
 function toggleExpandAll() {

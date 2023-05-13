@@ -92,9 +92,8 @@ public class WxBookController extends BaseController
         return success(wxBookService.selectWxBookById(id));
     }
 
-
     /**
-     * 新增图书信息管理
+     * 导入图书信息管理
      */
     @PreAuthorize("@ss.hasPermi('wx:book:add')")
     @Log(title = "图书信息管理", businessType = BusinessType.INSERT)
@@ -117,7 +116,15 @@ public class WxBookController extends BaseController
         return success("插入成功：" + successCounter + ":条，插入失败：" + failedCounter + "条");
         // return toAjax(wxBookService.insertWxBook(wxBook));
     }
-
+    /**
+     * 导入模板
+     */
+    @GetMapping("/importTemplate")
+    public AjaxResult importTemplate()
+    {
+        ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
+        return util.importTemplateExcel("书籍数据");
+    }
 
     /**
      * 新增图书信息管理

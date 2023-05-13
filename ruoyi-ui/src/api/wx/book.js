@@ -25,6 +25,14 @@ export function addBook(data) {
     data: data
   })
 }
+// 导入图书信息管理
+export function importBook(data) {
+  return request({
+    url: '/wx/book/import_by_excel',
+    method: 'post',
+    data: data
+  })
+}
 
 // 修改图书信息管理
 export function updateBook(data) {
