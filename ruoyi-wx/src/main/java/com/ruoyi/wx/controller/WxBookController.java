@@ -117,7 +117,7 @@ public class WxBookController extends BaseController
     /**
      * 导入模板
      */
-    @GetMapping("/importTemplate")
+    @PostMapping("/importTemplate")
     public AjaxResult importTemplate()
     {
         ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
@@ -164,7 +164,7 @@ public class WxBookController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('wx:book:export')")
     @Log(title = "图书信息管理", businessType = BusinessType.DELETE)
-	@GetMapping("/export_qrcode/{id}")
+	@PostMapping("/export_qrcode/{id}")
     public void exportQrcode(@PathVariable String id) throws IOException
     {
         // 先校验图书是否存在
