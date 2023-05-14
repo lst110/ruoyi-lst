@@ -33,6 +33,12 @@ public class RuoYiConfig
     /** 验证码类型 */
     private static String captchaType;
 
+    /** 小程序APPID */
+    private static String wechatAppid;
+
+    /** 小程序Secret */
+    private static String wechatSecret;
+
     public String getName()
     {
         return name;
@@ -132,4 +138,22 @@ public class RuoYiConfig
     {
         return getProfile() + "/upload";
     }
+
+    public static String getWechatAppid() {
+        return wechatAppid;
+    }
+
+    public static void setWechatAppid(String wechatAppid) {
+        RuoYiConfig.wechatAppid = wechatAppid;
+    }
+
+    public static String getWechatSecret() {
+        return wechatSecret;
+    }
+
+    public static void setWechatSecret(String wechatSecret) {
+        RuoYiConfig.wechatSecret = wechatSecret;
+    }
+
+    
 }
