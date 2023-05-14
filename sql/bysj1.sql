@@ -1190,6 +1190,7 @@ CREATE TABLE `wx_users`  (
   `id` int NOT NULL AUTO_INCREMENT COMMENT 'ID',
   `nickame` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '微信名称',
   `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '头像',
+  `openid` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL COMMENT '微信用户唯一ID',
   `role` int NULL DEFAULT NULL COMMENT '用户角色',
   `create_time` datetime NULL DEFAULT NULL COMMENT '创建时间',
   `update_time` datetime NULL DEFAULT NULL COMMENT '更新时间',
