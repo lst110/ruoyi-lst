@@ -445,12 +445,12 @@ submitFileForm() {
         ...this.queryParams
       }, `book_${new Date().getTime()}.xlsx`)
     },
-        /** 生成防伪码zip按钮操作 */
-        handleExportQr() {
-          this.download('wx/book/export_qrcode/{id}', {
-            ...this.queryParams
-          }, `book_${new Date().getTime()}.xlsx`,{},'get')
-        }
+      /** 生成防伪码zip按钮操作 */
+      handleExportQr() {
+        this.download('wx/book/export_qrcode/1', {
+          ...this.queryParams
+        }, `book_${new Date().getTime()}.zip`,{},'get')
+      }
   }
 };
 </script>

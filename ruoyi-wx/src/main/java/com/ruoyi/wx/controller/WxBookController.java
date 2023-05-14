@@ -1,14 +1,18 @@
 package com.ruoyi.wx.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +32,6 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.EncodeHintType;
 import com.google.zxing.MultiFormatWriter;
-import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 /**
@@ -194,37 +197,56 @@ public class WxBookController extends BaseController
                 qrList.add(qr.getRemark());
             }
         }
-        // List<BitMatrix> zxingBitMatrixs = new ArrayList<BitMatrix>();
-        ZipOutputStream zos = new ZipOutputStream(httpServletResponse.getOutputStream());
-        //压缩包文件名称
-        String downloadFilename = "图书：" + book.getBookName() + "防伪码";
+        
         // 指明response的返回对象是文件流
-        httpServletResponse.setHeader("Content-Type", "application/octet-stream");
+        httpServletResponse.setHeader("Content-Type", "application/zip");
+        httpServletResponse.setCharacterEncoding("utf-8");
+        httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + UUID.randomUUID() + ".zip");
+        // List<BitMatrix> zxingBitMatrixs = new ArrayList<BitMatrix>();
+        // 创建一个字节输出流
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(byteOutputStream);
+        //压缩包文件名称
+        // String downloadFilename = "图书：" + book.getBookName() + "防伪码";
         // headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
         // 设置在下载框默认显示的文件名
         // headers.set("Content-disposition", "attachment; filename=" + downloadFilename.concat(".zip"));
-        httpServletResponse.setHeader("Content-disposition", "attachment; filename=" + downloadFilename.concat(".zip"));
+        // httpServletResponse.setHeader("Content-disposition", "attachment; filename=" + downloadFilename.concat(".zip"));
+        //设置图片的文字编码以及内边框
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        //编码
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        //边框距
+        hints.put(EncodeHintType.MARGIN, 0);
+        String format = "png";// 图像类型
+        // BitMatrix bitMatrix;
         for (String content : qrList) {
-            //设置图片的文字编码以及内边框
-            Map<EncodeHintType, Object> hints = new HashMap<>();
-            //编码
-            hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
-            //边框距
-            hints.put(EncodeHintType.MARGIN, 0);
-            String format = "png";// 图像类型
-            BitMatrix bitMatrix;
             try {
                 //参数分别为：编码内容、编码类型、图片宽度、图片高度，设置参数
-                bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 300, 300,hints);
+                BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 300, 300,hints);
+                // BufferedImage buffImg = MatrixToImageWriter.toBufferedImage(bitMatrix);
+
+                ZipEntry entry = new ZipEntry(content + "." + format);
+                zos.putNextEntry(entry);
+                
+                // ImageIO.write(buffImg, format, zos);
+                // zos.flush();
                 MatrixToImageWriter.writeToStream(bitMatrix, format, zos);
-            }catch(WriterException e) {
+                zos.closeEntry();
+                zos.flush();
+                bitMatrix.clear();
+            }catch(Exception e) {
                 e.printStackTrace();
+                System.out.println("-------------------------" + content);
                 continue;
             }
             // bitMatrix.writeToStream(bitMatrix, format, zos);
         }
+        zos.finish();
         // 释放资源
         zos.close();
+        byte[] compressedData = byteOutputStream.toByteArray();
+        httpServletResponse.getOutputStream().write(compressedData);
         return;
     }
 
