@@ -20,6 +20,14 @@ public interface WxUsersMapper
     public WxUsers selectWxUsersById(Long id);
 
     /**
+     * 查询小程序用户
+     * 
+     * @param OpenId 小程序用户OpenId
+     * @return 小程序用户
+     */
+    public WxUsers selectWxUsersByOpenId(String openid);
+
+    /**
      * 查询小程序用户列表
      * 
      * @param wxUsers 小程序用户
