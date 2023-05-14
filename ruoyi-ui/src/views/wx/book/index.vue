@@ -124,16 +124,6 @@
           v-hasPermi="['wx:book:export']"
         >导出图书信息</el-button>
       </el-col>
-      <el-col :span="1.5">
-              <el-button
-                type="warning"
-                plain
-                icon="el-icon-download"
-                size="mini"
-                @click="handleExportQr"
-                v-hasPermi="['wx:book:export']"
-              >生成防伪码zip</el-button>
-            </el-col>
       <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
@@ -154,6 +144,13 @@
       <el-table-column label="出版数量" align="center" prop="publishNumber" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-download"
+            @click="handleExportQr(scope.row)"
+            v-hasPermi="['wx:book:export']"
+          >下载防伪码</el-button>
           <el-button
             size="mini"
             type="text"
@@ -446,8 +443,8 @@ submitFileForm() {
       }, `book_${new Date().getTime()}.xlsx`)
     },
       /** 生成防伪码zip按钮操作 */
-      handleExportQr() {
-        this.download('wx/book/export_qrcode/1', {
+      handleExportQr(row) {
+        this.download('wx/book/export_qrcode/' + row.id, {
           ...this.queryParams
         }, `book_${new Date().getTime()}.zip`,{},'get')
       }
