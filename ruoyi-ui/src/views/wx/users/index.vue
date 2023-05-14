@@ -89,7 +89,11 @@
       <el-table-column type="selection" width="55" align="center" />
       <el-table-column label="ID" align="center" prop="id" />
       <el-table-column label="微信名称" align="center" prop="nickame" />
-      <el-table-column label="头像" align="center" prop="avatar" />
+      <el-table-column label="头像" align="center" prop="avatar">
+      <template width="90" slot-scope="scope">
+        <img style="width:80px;height:80px;border:none;" :src="scope.row.avatar">
+      </template>
+      </el-table-column>
       <el-table-column label="用户角色" align="center" prop="role" />
       <el-table-column label="微信用户唯一ID" align="center" prop="openid" />
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -111,7 +115,7 @@
         </template>
       </el-table-column>
     </el-table>
-    
+
     <pagination
       v-show="total>0"
       :total="total"
