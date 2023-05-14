@@ -54,9 +54,9 @@ public class WxLog extends BaseEntity
     {
         return id;
     }
-    public void setCode_id(String code_id)
+    public void setCode_id(String long1)
     {
-        this.code_id = code_id;
+        this.code_id = long1;
     }
 
     public String getCode_id()

@@ -32,6 +32,16 @@ public class WxCodeServiceImpl implements IWxCodeService
     }
 
     /**
+     * 查询防伪码管理
+     * 
+     * @param remark 防伪码code
+     * @return 防伪码管理
+     */
+    @Override
+    public WxCode selectWxCodeByRemark(String remark){
+        return wxCodeMapper.selectWxCodeByRemark(remark);
+    }
+    /**
      * 查询防伪码管理列表
      * 
      * @param wxCode 防伪码管理

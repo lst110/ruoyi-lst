@@ -31,10 +31,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTime != null "> and create_time = #{createTime}</if>
         </where>
     </select>
-    
-    <select id="selectWxLogById" parameterType="String" resultMap="WxLogResult">
+
+    <select id="selectWxLogByCodeId" parameterType="String" resultMap="WxLogResult">
         <include refid="selectWxLogVo"/>
-        where id = #{id}
+        where code_id = #{codeid}
     </select>
         
     <insert id="insertWxLog" parameterType="WxLog">

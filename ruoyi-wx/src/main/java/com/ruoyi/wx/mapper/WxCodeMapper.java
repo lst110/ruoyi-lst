@@ -20,6 +20,14 @@ public interface WxCodeMapper
     public WxCode selectWxCodeById(String id);
 
     /**
+     * 查询防伪码管理
+     * 
+     * @param remark 防伪码code
+     * @return 防伪码管理
+     */
+    public WxCode selectWxCodeByRemark(String remark);
+
+    /**
      * 查询防伪码管理列表
      * 
      * @param wxCode 防伪码管理

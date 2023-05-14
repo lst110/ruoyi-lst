@@ -33,6 +33,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectWxCodeVo"/>
         where id = #{id}
     </select>
+
+    <select id="selectWxCodeByRemark" parameterType="String" resultMap="WxCodeResult">
+        <include refid="selectWxCodeVo"/>
+        where remark = #{remark}
+    </select>
         
     <insert id="insertWxCode" parameterType="WxCode">
         insert into wx_code

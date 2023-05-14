@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,13 @@ import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.wx.domain.WxCode;
+import com.ruoyi.wx.domain.WxLog;
 import com.ruoyi.wx.domain.WxUsers;
+import com.ruoyi.wx.service.IWxCodeService;
+import com.ruoyi.wx.service.IWxLogService;
 import com.ruoyi.wx.service.IWxUsersService;
+import com.ruoyi.wx.service.IWxWarnService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 
@@ -42,7 +48,12 @@ public class WxUsersController extends BaseController
 {
     @Autowired
     private IWxUsersService wxUsersService;
-
+    @Autowired
+    private IWxCodeService wxCodeService;
+    @Autowired
+    private IWxWarnService wxWarnService;
+    @Autowired
+    private IWxLogService wxLogService;
     /**
      * 查询小程序用户列表
      */
@@ -174,5 +185,41 @@ public class WxUsersController extends BaseController
         resp.put("nickname", user.getNickame());
         resp.put("openid", user.getOpenid());
         return success(resp);
+    }
+
+    @Log(title = "小程序用户扫码")
+    @PostMapping("/wechat/scan_qr")
+    @Anonymous
+    public AjaxResult UserScanQr(@RequestBody Map<String, Object> map,HttpServletRequest request){
+        String openid = (String)map.get("openid");
+        String qr = (String)map.get("qr_val");
+        if(openid == null || qr == null) {
+            return error("参数错误");
+        }
+        WxUsers user = wxUsersService.selectWxUsersByOpenId(openid);
+        if(user == null) {
+            return error("用户不存在");
+        }
+        WxCode code = wxCodeService.selectWxCodeByRemark(qr);
+        if(code == null) {
+            return error("防伪码不存在");
+        }
+        // 查询是否有扫码记录
+        WxLog wxLog = new WxLog();
+        wxLog.setCode_id(String.valueOf(code.getId()));
+        List<WxLog> logList = wxLogService.selectWxLogList(wxLog);
+        if(logList.size() > 0) {
+            // 这里进入告警逻辑
+        }
+        wxLog.setCreateIp(request.getRemoteHost());
+        wxLog.setCreateBy(openid);
+        wxLog.setCreateTime(new Date());
+        try {
+            wxLogService.insertWxLog(wxLog);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return error("扫码记录添加失败");
+        }
+        return success("扫码绑定成功");
     }
 }

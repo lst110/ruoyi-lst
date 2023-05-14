@@ -38,6 +38,7 @@ public class WxUsersServiceImpl implements IWxUsersService
      * @param OpenId 小程序用户OpenId
      * @return 小程序用户
      */
+    @Override
     public WxUsers selectWxUsersByOpenId(String openid) {
         return wxUsersMapper.selectWxUsersByOpenId(openid);
     }
