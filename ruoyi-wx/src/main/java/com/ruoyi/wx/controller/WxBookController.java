@@ -176,11 +176,13 @@ public class WxBookController extends BaseController
         List<String> qrList = new ArrayList<String>();
         WxCode wxCodeTmp = new WxCode();
         wxCodeTmp.setBook_id(id);
-        wxCodeTmp.setCreateTime(new Date());;
+        wxCodeTmp.setCreateTime(new Date());
+        Long qrNum = book.getPublishNumber();
+        Long currentNum = listIsNull(qrcodeList) ? 0L : qrcodeList.size();
         // 将remark中填入uuid，作为二维码内容
-        if(listIsNull(qrcodeList)) {
-            // 如果还没有生成二维码内容，则先创建记录
-            for (int i = 0; i < book.getPublishNumber(); i++) {
+        if(currentNum < qrNum) {
+            // 如果还没有生成二维码内容或者生成数量不够的情况下，则先追加/创建记录
+            for (int i = 0; i < qrNum - currentNum; i++) {
                 String qrContent = UUID.randomUUID().toString();
                 try {
                     wxCodeTmp.setRemark(qrContent); 
