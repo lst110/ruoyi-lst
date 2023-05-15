@@ -335,7 +335,7 @@ public class WxUsersController extends BaseController
                     tmp.put(codes2.getBook_id(), book_name);
                 }
             }
-            codes2.setRemark(book_name);
+            codes2.setCreateBy(book_name);
         }
         return success(codes);
     }
