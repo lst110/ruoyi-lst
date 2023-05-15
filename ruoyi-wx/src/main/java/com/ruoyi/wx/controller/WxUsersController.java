@@ -129,15 +129,12 @@ public class WxUsersController extends BaseController
     @Anonymous
     public AjaxResult wechatLogin(@RequestBody Map<String, Object> map) {
         Map<String,Object> resp = new HashMap<String,Object>();
-        System.out.println("========" + map.get("code"));
         RestTemplate restTemplate = new RestTemplate();
         //请求微信开发平台判断用户
         String wechatAppid = "wxb6f841676594c1f2";
         String wechatSecret = "39357557899671b926a65a33f59ccbd8";
         //向微信服务器发送恳求获取用户信息
-        System.out.println(RuoYiConfig.getWechatAppid());
         String url = "https://api.weixin.qq.com/sns/jscode2session?appid=" + wechatAppid + "&secret=" + wechatSecret + "&js_code=" + map.get("code") + "&grant_type=authorization_code";
-        System.out.println(url);
         String res = restTemplate.getForObject(url, String.class);
         JSONObject jsonObject = JSONObject.parseObject(res);
         if(jsonObject.containsKey("errcode")) {
@@ -147,10 +144,18 @@ public class WxUsersController extends BaseController
         // 获取openid
         String openid = jsonObject.getString("openid");
         WxUsers user = wxUsersService.selectWxUsersByOpenId(openid);
+        boolean warn = false;
         if(user != null) {
+            //查询是否需要预警
+            WxCode code = new WxCode();
+            code.setCreateUser(String.valueOf(user.getId()));
+            code.setCodeStatus("2");
+            List<WxCode> record = wxCodeService.selectWxCodeList(code);
+            warn = record.size() > 0 ? true : false;
             resp.put("avatar", user.getAvatar());
             resp.put("nickname", user.getNickame());
             resp.put("openid", user.getOpenid());
+            resp.put("warn", warn);
             return success(resp);
         }
         // url = "https://api.weixin.qq.com/cgi-bin/token?appid=" + wechatAppid + "&secret=" + wechatSecret + "&grant_type=client_credential";
@@ -170,6 +175,7 @@ public class WxUsersController extends BaseController
         //     System.out.println(jsonObject.toJSONString());
         //     return error("获取userinfo失败");
         // }
+        
         user = new WxUsers();
         user.setNickame((String)map.get("nickname"));
         user.setOpenid(openid);
@@ -185,6 +191,7 @@ public class WxUsersController extends BaseController
         resp.put("avatar", user.getAvatar());
         resp.put("nickname", user.getNickame());
         resp.put("openid", user.getOpenid());
+        resp.put("warn", warn);
         return success(resp);
     }
 
@@ -211,9 +218,8 @@ public class WxUsersController extends BaseController
         List<WxLog> logList = wxLogService.selectWxLogList(wxLog);
         if(logList.size() > 0) {
             // 这里进入告警逻辑
-            boolean vPass = true;
-            logList.sort(null);
             WxLog firstLog = new WxLog();
+            code.setLogId(String.valueOf(user.getId()));
             for (WxLog logList2 : logList) {
                 if(firstLog.getCreateTime() == null) {
                     firstLog = logList2;
@@ -224,14 +230,15 @@ public class WxUsersController extends BaseController
                 //     // 如果
                 // }
             };
-            if(!firstLog.getUserId().equals(String.valueOf(user.getId()))) {
+            firstLog.setId(null);
+            if(!code.getCreateUser().equals(String.valueOf(user.getId()))) {
                 // 当前扫码id和第一次扫码id不一致，触发告警
                 code.setCodeStatus("2");
                 try {
                     //更改防盗码状态
                     wxCodeService.updateWxCode(code);
                     //添加扫码日志
-                    firstLog.setId(user.getId());
+                    firstLog.setUserId(String.valueOf(user.getId()));
                     firstLog.setIp(request.getRemoteHost());
                     firstLog.setTime(new Date());
                     wxLogService.insertWxLog(firstLog);
@@ -242,7 +249,20 @@ public class WxUsersController extends BaseController
                     warn.setwarn_ip(request.getRemoteHost());
                     warn.setwarn_qrid(code.getId());
                     warn.setwarn_state("1");
+                    warn.setwarn_user(user.getId());
                     wxWarnService.insertWxWarn(warn);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    //更改防盗码状态
+                    wxCodeService.updateWxCode(code);
+                    //添加扫码日志
+                    firstLog.setId(user.getId());
+                    firstLog.setIp(request.getRemoteHost());
+                    firstLog.setTime(new Date());
+                    wxLogService.insertWxLog(firstLog);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -250,9 +270,14 @@ public class WxUsersController extends BaseController
         } else {
             // 首次扫码
             code.setCodeStatus("1");
+            code.setCreateUser(String.valueOf(user.getId()));
+            code.setCreateLog(String.valueOf(user.getId()));
+            code.setLogId(String.valueOf(user.getId()));
             wxLog.setCreateIp(request.getRemoteHost());
-            wxLog.setCreateBy(openid);
             wxLog.setCreateTime(new Date());
+            wxLog.setIp(request.getRemoteHost());
+            wxLog.setTime(new Date());
+            wxLog.setUserId(String.valueOf(user.getId()));
             wxLog.setNumber(1L);
             try {
                 wxLogService.insertWxLog(wxLog);
@@ -262,6 +287,6 @@ public class WxUsersController extends BaseController
                 return error("扫码记录添加失败");
             }
         }
-        return success("扫码绑定成功");
+        return success("扫码成功");
     }
 }
