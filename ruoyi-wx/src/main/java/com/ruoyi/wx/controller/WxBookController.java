@@ -2,7 +2,6 @@ package com.ruoyi.wx.controller;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -11,16 +10,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
-
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
-
 import com.ruoyi.wx.domain.WxUsers;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -144,6 +139,15 @@ public class WxBookController extends BaseController
         for (WxBook wxBook : bookList) {
             try {
                 wxBookService.insertWxBook(wxBook);
+                for (int i = 0; i < wxBook.getPublishNumber(); i++) {
+                    WxCode wxCode = new WxCode();
+                    wxCode.setBook_id(String.valueOf(wxBook.getId()));
+                    wxCode.setCodeStatus("1");
+                    wxCode.setCreateUser(String.valueOf(wxUser.getId()));
+                    wxCode.setCreateTime(new Date());
+                    wxCode.setRemark(UUID.randomUUID().toString());
+                    wxCodeService.insertWxCode(wxCode);
+                }
                 successCounter++;
             } catch (Exception e) {
                 e.printStackTrace();
@@ -295,5 +299,84 @@ public class WxBookController extends BaseController
             return true;
         }
         return false;
+    }
+
+    /**
+     * 导出图书二维码
+     * @throws IOException
+     */
+    @Log(title = "图书信息管理", businessType = BusinessType.DELETE)
+	@GetMapping("/export_qrcode_all/{openid}")
+    public void exportQrcodeAll(@PathVariable String openid,HttpServletResponse httpServletResponse) throws IOException
+    {
+        WxUsers wxUser = wxUsersService.selectWxUsersByOpenId(openid);
+        if(wxUser == null) {
+            return;
+        }
+        
+        WxCode wxCode = new WxCode();
+        wxCode.setCreateUser(String.valueOf(wxUser.getId()));
+        List<WxCode> qrcodeList = wxCodeService.selectWxCodeList(wxCode);
+        List<String> qrList = new ArrayList<String>();
+        for (WxCode qr : qrcodeList) {
+            qrList.add(qr.getRemark());
+        }
+        
+        // 指明response的返回对象是文件流
+        httpServletResponse.setHeader("Content-Type", "application/zip");
+        httpServletResponse.setCharacterEncoding("utf-8");
+        httpServletResponse.setHeader("Content-Disposition", "attachment;filename=" + UUID.randomUUID() + ".zip");
+        // List<BitMatrix> zxingBitMatrixs = new ArrayList<BitMatrix>();
+        // 创建一个字节输出流
+        ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+        ZipOutputStream zos = new ZipOutputStream(byteOutputStream);
+        //压缩包文件名称
+        // String downloadFilename = "图书：" + book.getBookName() + "防伪码";
+        // headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+        // 设置在下载框默认显示的文件名
+        // headers.set("Content-disposition", "attachment; filename=" + downloadFilename.concat(".zip"));
+        // httpServletResponse.setHeader("Content-disposition", "attachment; filename=" + downloadFilename.concat(".zip"));
+        //设置图片的文字编码以及内边框
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        //编码
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        //边框距
+        hints.put(EncodeHintType.MARGIN, 0);
+        String format = "png";// 图像类型
+        // BitMatrix bitMatrix;
+        for (String content : qrList) {
+            try {
+                //参数分别为：编码内容、编码类型、图片宽度、图片高度，设置参数
+                BitMatrix bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 300, 300,hints);
+                // BufferedImage buffImg = MatrixToImageWriter.toBufferedImage(bitMatrix);
+                String book_id = "";
+                for (int i = 0; i < qrcodeList.size(); i++) {
+                    if(qrcodeList.get(i).getRemark().equals(content)) {
+                        book_id = qrcodeList.get(i).getBook_id();
+                        break;
+                    }
+                }
+                ZipEntry entry = new ZipEntry("book_" + book_id + "_" + content + "." + format);
+                zos.putNextEntry(entry);
+                
+                // ImageIO.write(buffImg, format, zos);
+                // zos.flush();
+                MatrixToImageWriter.writeToStream(bitMatrix, format, zos);
+                zos.closeEntry();
+                zos.flush();
+                bitMatrix.clear();
+            }catch(Exception e) {
+                e.printStackTrace();
+                System.out.println("-------------------------" + content);
+                continue;
+            }
+            // bitMatrix.writeToStream(bitMatrix, format, zos);
+        }
+        zos.finish();
+        // 释放资源
+        zos.close();
+        byte[] compressedData = byteOutputStream.toByteArray();
+        httpServletResponse.getOutputStream().write(compressedData);
+        return;
     }
 }
