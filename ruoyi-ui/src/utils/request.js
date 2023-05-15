@@ -122,7 +122,7 @@ export function download(url, params, filename, config, method = 'post') {
   if(method == 'get') {
     return service.get(url, {
       headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-      responseType: 'blob',
+      responseType: 'blob', // binary data / json / application/json
       ...config
     }).then(async (data) => {
       const isBlob = blobValidate(data);

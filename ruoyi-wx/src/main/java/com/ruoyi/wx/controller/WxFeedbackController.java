@@ -74,7 +74,7 @@ public class WxFeedbackController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('wx:feedback:add')")
     @Log(title = "反馈处理", businessType = BusinessType.INSERT)
-    @PostMapping
+    @PostMapping("/add")
     public AjaxResult add(@RequestBody WxFeedback wxFeedback)
     {
         return toAjax(wxFeedbackService.insertWxFeedback(wxFeedback));

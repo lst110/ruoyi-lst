@@ -119,6 +119,7 @@ public class WxBookController extends BaseController
     {
         ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
 //        return util.exportExcel(new ArrayList<WxBook>(),"sheet1");
+        // 把一个文件的文件流信息写入到用户请求的response流中
         util.exportExcel(response,new ArrayList<WxBook>(),"sheet1");
     }
 
