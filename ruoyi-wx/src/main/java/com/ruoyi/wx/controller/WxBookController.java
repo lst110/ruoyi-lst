@@ -14,6 +14,8 @@ import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.wx.domain.WxUsers;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -123,6 +125,34 @@ public class WxBookController extends BaseController
         ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
 //        return util.exportExcel(new ArrayList<WxBook>(),"sheet1");
         util.exportExcel(response,new ArrayList<WxBook>(),"sheet1");
+    }
+
+//    @PreAuthorize("@ss.hasPermi('wx:book:add')")
+    @Log(title = "图书信息管理", businessType = BusinessType.INSERT)
+    @PostMapping("/import_by_excel_public")
+    @Anonymous
+    public AjaxResult addByExcelPublic(MultipartFile file,String openid) throws Exception
+    {
+        WxUsers wxUser =  wxUsersService.selectWxUsersByOpenId(openid);
+        if(wxUser == null){
+            return error("用户不存在");
+        }
+        ExcelUtil<WxBook> util = new ExcelUtil<WxBook>(WxBook.class);
+        List<WxBook> bookList = util.importExcel(file.getInputStream());
+        int successCounter = 0;
+        int failedCounter = 0;
+        for (WxBook wxBook : bookList) {
+            try {
+                wxBookService.insertWxBook(wxBook);
+                successCounter++;
+            } catch (Exception e) {
+                e.printStackTrace();
+                failedCounter++;
+                continue;
+            }
+        }
+        return success("插入成功：" + successCounter + ":条，插入失败：" + failedCounter + "条");
+        // return toAjax(wxBookService.insertWxBook(wxBook));
     }
 
 
