@@ -29,6 +29,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.wx.domain.WxCode;
 import com.ruoyi.wx.domain.WxLog;
 import com.ruoyi.wx.domain.WxUsers;
+import com.ruoyi.wx.domain.WxWarn;
 import com.ruoyi.wx.service.IWxCodeService;
 import com.ruoyi.wx.service.IWxLogService;
 import com.ruoyi.wx.service.IWxUsersService;
@@ -210,15 +211,56 @@ public class WxUsersController extends BaseController
         List<WxLog> logList = wxLogService.selectWxLogList(wxLog);
         if(logList.size() > 0) {
             // 这里进入告警逻辑
-        }
-        wxLog.setCreateIp(request.getRemoteHost());
-        wxLog.setCreateBy(openid);
-        wxLog.setCreateTime(new Date());
-        try {
-            wxLogService.insertWxLog(wxLog);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return error("扫码记录添加失败");
+            boolean vPass = true;
+            logList.sort(null);
+            WxLog firstLog = new WxLog();
+            for (WxLog logList2 : logList) {
+                if(firstLog.getCreateTime() == null) {
+                    firstLog = logList2;
+                } else if(logList2.getCreateTime().before(firstLog.getCreateTime())) {
+                    firstLog = logList2;
+                }
+                // if(!logList2.getUserId().equals(String.valueOf(user.getId()))){
+                //     // 如果
+                // }
+            };
+            if(!firstLog.getUserId().equals(String.valueOf(user.getId()))) {
+                // 当前扫码id和第一次扫码id不一致，触发告警
+                code.setCodeStatus("2");
+                try {
+                    //更改防盗码状态
+                    wxCodeService.updateWxCode(code);
+                    //添加扫码日志
+                    firstLog.setId(user.getId());
+                    firstLog.setIp(request.getRemoteHost());
+                    firstLog.setTime(new Date());
+                    wxLogService.insertWxLog(firstLog);
+                    //添加预警日志
+                    WxWarn warn = new WxWarn();
+                    warn.setwarn_num(1L);
+                    warn.setwarn_time(new Date());
+                    warn.setwarn_ip(request.getRemoteHost());
+                    warn.setwarn_qrid(code.getId());
+                    warn.setwarn_state("1");
+                    wxWarnService.insertWxWarn(warn);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        } else {
+            // 首次扫码
+            code.setCodeStatus("1");
+            wxLog.setCreateIp(request.getRemoteHost());
+            wxLog.setCreateBy(openid);
+            wxLog.setCreateTime(new Date());
+            wxLog.setNumber(1L);
+            try {
+                wxLogService.insertWxLog(wxLog);
+                wxCodeService.updateWxCode(code);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return error("扫码记录添加失败");
+            }
         }
         return success("扫码绑定成功");
     }
