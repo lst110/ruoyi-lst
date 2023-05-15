@@ -99,8 +99,10 @@ public class WxFeedbackController extends BaseController
         if(user == null) {
             return error("用户不存在");
         }
+        wxFeedback.setfeedback_content(wxFeedback.getfeedback_content() + "\r\n\r\n" + wxFeedback.getfeedback_user());
         wxFeedback.setfeedback_time(new Date());
         wxFeedback.setfeedback_state("1");
+        wxFeedback.setfeedback_user(String.valueOf(user.getId()));
         return toAjax(wxFeedbackService.insertWxFeedback(wxFeedback));
     }
 
