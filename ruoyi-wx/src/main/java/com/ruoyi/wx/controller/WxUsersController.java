@@ -350,14 +350,14 @@ public class WxUsersController extends BaseController
             return error("用户不存在");
         }
         WxCode code = new WxCode();
-        code.setCreateUser(String.valueOf(user.getId()));
+        code.setCreateLog(String.valueOf(user.getId()));
         List<WxCode> codes = wxCodeService.selectWxCodeList(code);
         List<WxWarn> warns = new ArrayList<WxWarn>();
         for (WxCode wxCode : codes) {
             WxWarn warn = new WxWarn();
             warn.setwarn_qrid(wxCode.getId());
             List<WxWarn> tmps = wxWarnService.selectWxWarnList(warn);
-            if(tmps.size() > 0) {
+            if(!tmps.isEmpty()) {
                 warns.addAll(tmps);
             }
         }

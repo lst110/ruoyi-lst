@@ -142,7 +142,7 @@ public class WxBookController extends BaseController
                 for (int i = 0; i < wxBook.getPublishNumber(); i++) {
                     WxCode wxCode = new WxCode();
                     wxCode.setBook_id(String.valueOf(wxBook.getId()));
-                    wxCode.setCodeStatus("1");
+                    wxCode.setCodeStatus("0");
                     wxCode.setCreateUser(String.valueOf(wxUser.getId()));
                     wxCode.setCreateTime(new Date());
                     wxCode.setRemark(UUID.randomUUID().toString());
