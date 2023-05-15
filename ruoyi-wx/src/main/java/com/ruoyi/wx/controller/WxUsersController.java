@@ -356,6 +356,8 @@ public class WxUsersController extends BaseController
         for (WxCode wxCode : codes) {
             WxWarn warn = new WxWarn();
             warn.setwarn_qrid(wxCode.getId());
+            System.out.println(wxCode.getId());
+            System.out.println(warn);
             List<WxWarn> tmps = wxWarnService.selectWxWarnList(warn);
             if(!tmps.isEmpty()) {
                 warns.addAll(tmps);
