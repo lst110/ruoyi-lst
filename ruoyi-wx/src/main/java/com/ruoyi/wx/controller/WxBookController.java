@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -27,6 +28,7 @@ import com.ruoyi.wx.domain.WxBook;
 import com.ruoyi.wx.domain.WxCode;
 import com.ruoyi.wx.service.IWxBookService;
 import com.ruoyi.wx.service.IWxCodeService;
+import com.ruoyi.wx.service.IWxUsersService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.google.zxing.BarcodeFormat;
@@ -48,6 +50,8 @@ public class WxBookController extends BaseController
     private IWxBookService wxBookService;
     @Autowired
     private IWxCodeService wxCodeService;
+    @Autowired
+    private IWxUsersService wxUsersService;
     /**
      * 查询图书信息管理列表
      */
@@ -111,7 +115,8 @@ public class WxBookController extends BaseController
     /**
      * 导入模板
      */
-    @PreAuthorize("@ss.hasPermi('wx:book:export')")
+    // @PreAuthorize("@ss.hasPermi('wx:book:export')")
+    @Anonymous
     @GetMapping("/importTemplate")
     public void importTemplate(HttpServletResponse response)
     {
