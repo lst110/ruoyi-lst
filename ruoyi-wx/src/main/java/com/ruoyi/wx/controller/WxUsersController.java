@@ -144,18 +144,16 @@ public class WxUsersController extends BaseController
         // 获取openid
         String openid = jsonObject.getString("openid");
         WxUsers user = wxUsersService.selectWxUsersByOpenId(openid);
-        boolean warn = false;
         if(user != null) {
             //查询是否需要预警
             WxCode code = new WxCode();
             code.setCreateUser(String.valueOf(user.getId()));
             code.setCodeStatus("2");
             List<WxCode> record = wxCodeService.selectWxCodeList(code);
-            warn = record.size() > 0 ? true : false;
             resp.put("avatar", user.getAvatar());
             resp.put("nickname", user.getNickame());
             resp.put("openid", user.getOpenid());
-            resp.put("warn", warn);
+            resp.put("status", record.isEmpty() ? "1" : "2");
             return success(resp);
         }
         // url = "https://api.weixin.qq.com/cgi-bin/token?appid=" + wechatAppid + "&secret=" + wechatSecret + "&grant_type=client_credential";
@@ -191,7 +189,7 @@ public class WxUsersController extends BaseController
         resp.put("avatar", user.getAvatar());
         resp.put("nickname", user.getNickame());
         resp.put("openid", user.getOpenid());
-        resp.put("warn", warn);
+        resp.put("status", "1");
         return success(resp);
     }
 
