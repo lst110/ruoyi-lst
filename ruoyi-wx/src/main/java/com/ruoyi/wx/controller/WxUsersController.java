@@ -31,10 +31,12 @@ import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.wx.domain.WxBook;
 import com.ruoyi.wx.domain.WxCode;
 import com.ruoyi.wx.domain.WxLog;
 import com.ruoyi.wx.domain.WxUsers;
 import com.ruoyi.wx.domain.WxWarn;
+import com.ruoyi.wx.service.IWxBookService;
 import com.ruoyi.wx.service.IWxCodeService;
 import com.ruoyi.wx.service.IWxLogService;
 import com.ruoyi.wx.service.IWxUsersService;
@@ -60,6 +62,8 @@ public class WxUsersController extends BaseController
     private IWxWarnService wxWarnService;
     @Autowired
     private IWxLogService wxLogService;
+    @Autowired
+    private IWxBookService wxBookService;
     /**
      * 查询小程序用户列表
      */
@@ -319,6 +323,20 @@ public class WxUsersController extends BaseController
         WxCode code = new WxCode();
         code.setCreateUser(String.valueOf(user.getId()));
         List<WxCode> codes = wxCodeService.selectWxCodeList(code);
+        HashMap<String,String> tmp = new HashMap<>();
+        WxBook book = null;
+        String book_name = "";
+        for (WxCode codes2 : codes) {
+            book_name = tmp.get(codes2.getBook_id());
+            if(book_name == null){
+                book = wxBookService.selectWxBookById(codes2.getBook_id());
+                if(book != null) {
+                    book_name = book.getBookName();
+                    tmp.put(codes2.getBook_id(), book_name);
+                }
+            }
+            codes2.setRemark(book_name);
+        }
         return success(codes);
     }
 
