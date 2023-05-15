@@ -1,7 +1,9 @@
 package com.ruoyi.wx.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +22,11 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
 import com.alibaba.fastjson2.JSONObject;
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.EncodeHintType;
+import com.google.zxing.MultiFormatWriter;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -287,4 +294,76 @@ public class WxUsersController extends BaseController
         }
         return success("扫码成功");
     }
+
+    @Log(title = "我的防伪码")
+    @PostMapping("/wechat/my_code")
+    @Anonymous
+    public AjaxResult myCode(@RequestBody Map<String, Object> map){
+        String openid = (String)map.get("openid");
+        if(openid == null) {
+            return error("参数错误");
+        }
+        WxUsers user = wxUsersService.selectWxUsersByOpenId(openid);
+        if(user == null) {
+            return error("用户不存在");
+        }
+        WxCode code = new WxCode();
+        code.setCreateUser(String.valueOf(user.getId()));
+        List<WxCode> codes = wxCodeService.selectWxCodeList(code);
+        return success(codes);
+    }
+
+    @Log(title = "防伪码图片")
+    @GetMapping("/wechat/code/{content}")
+    @Anonymous
+    public void myCode(@PathVariable String content,HttpServletResponse response){
+        response.setContentType("image/png");
+        Map<EncodeHintType, Object> hints = new HashMap<>();
+        //编码
+        hints.put(EncodeHintType.CHARACTER_SET, "UTF-8");
+        //边框距
+        hints.put(EncodeHintType.MARGIN, 0);
+        String format = "png";// 图像类型
+        BitMatrix bitMatrix;
+        try {
+            //参数分别为：编码内容、编码类型、图片宽度、图片高度，设置参数
+            bitMatrix = new MultiFormatWriter().encode(content, BarcodeFormat.QR_CODE, 300, 300,hints);
+            // BufferedImage buffImg = MatrixToImageWriter.toBufferedImage(bitMatrix);
+            // ImageIO.write(buffImg, format, zos);
+            // zos.flush();
+            MatrixToImageWriter.writeToStream(bitMatrix, format, response.getOutputStream());
+            bitMatrix.clear();
+        }catch(Exception e) {
+            e.printStackTrace();
+            System.out.println("-------------------------" + content);
+        }
+    }
+
+    @Log(title = "我的预警记录")
+    @PostMapping("/wechat/my_warn")
+    @Anonymous
+    public AjaxResult myWarn(@RequestBody Map<String, Object> map){
+        String openid = (String)map.get("openid");
+        if(openid == null) {
+            return error("参数错误");
+        }
+        WxUsers user = wxUsersService.selectWxUsersByOpenId(openid);
+        if(user == null) {
+            return error("用户不存在");
+        }
+        WxCode code = new WxCode();
+        code.setCreateUser(String.valueOf(user.getId()));
+        List<WxCode> codes = wxCodeService.selectWxCodeList(code);
+        List<WxWarn> warns = new ArrayList<WxWarn>();
+        for (WxCode wxCode : codes) {
+            WxWarn warn = new WxWarn();
+            warn.setwarn_qrid(wxCode.getId());
+            List<WxWarn> tmps = wxWarnService.selectWxWarnList(warn);
+            if(tmps.size() > 0) {
+                warns.addAll(tmps);
+            }
+        }
+        return success(warns);
+    }
+
 }
