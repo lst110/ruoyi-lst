@@ -1,6 +1,8 @@
 package com.ruoyi.wx.controller;
 
 import java.util.List;
+import java.util.Map;
+
 import javax.servlet.http.HttpServletResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,11 +14,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.enums.BusinessType;
+import com.ruoyi.wx.domain.WxCode;
+import com.ruoyi.wx.domain.WxUsers;
 import com.ruoyi.wx.domain.WxWarn;
+import com.ruoyi.wx.service.IWxCodeService;
+import com.ruoyi.wx.service.IWxUsersService;
 import com.ruoyi.wx.service.IWxWarnService;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -33,7 +41,10 @@ public class WxWarnController extends BaseController
 {
     @Autowired
     private IWxWarnService wxWarnService;
-
+    @Autowired
+    private IWxUsersService wxUsersService;
+    @Autowired
+    private IWxCodeService wxCodeService;
     /**
      * 查询预警处理列表
      */
@@ -100,5 +111,46 @@ public class WxWarnController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(wxWarnService.deleteWxWarnByIds(ids));
+    }
+
+    /**
+     * 修改防伪码状态
+     */
+    @Log(title = "处理告警", businessType = BusinessType.UPDATE)
+    @Anonymous
+    @PostMapping("/change_state")
+    public AjaxResult changeState(@RequestBody Map<String,Object> map)
+    {
+        String openid = (String) map.get("openid");
+        String warn_id = (String) map.get("warn_id");
+        String state = (String) map.get("state");
+        if(openid == null || warn_id == null || state == null) {
+            return error("参数错误");
+        }
+        WxUsers user = wxUsersService.selectWxUsersByOpenId(openid);
+        if(user == null) {
+            return error("用户不存在");
+        }
+        WxWarn warn = wxWarnService.selectWxWarnById(Long.parseLong(warn_id));
+        if(warn == null) {
+            return error("告警信息不存在");
+        }
+        WxCode code = wxCodeService.selectWxCodeById(String.valueOf(warn.getwarn_qrid()));
+        if(code == null) {
+            return error("防伪码信息不存在");
+        }
+        if(!code.getCreateUser().equals(String.valueOf(user.getId()))) {
+            return error("权限验证失败");
+        }
+        code.setCodeStatus(state);
+        warn.setwarn_state("2");
+        try {
+            wxCodeService.updateWxCode(code);
+            wxWarnService.updateWxWarn(warn);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return error("处理失败");
+        }
+        return success("处理成功");
     }
 }

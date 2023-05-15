@@ -233,27 +233,39 @@ public class WxUsersController extends BaseController
                 //     // 如果
                 // }
             };
-            firstLog.setId(null);
-            if(!code.getCreateUser().equals(String.valueOf(user.getId()))) {
+            // firstLog.setId(null);
+            if(!code.getCreateLog().equals(String.valueOf(user.getId()))) {
                 // 当前扫码id和第一次扫码id不一致，触发告警
-                code.setCodeStatus("2");
+                // code.setCodeStatus("2");
+                code.setLogId(String.valueOf(user.getId()));
                 try {
                     //更改防盗码状态
+                    // wxCodeService.updateWxCode(code);
+                    // 查询是否已添加过
+                    WxLog logWhere = new WxLog();
+                    logWhere.setUserId(String.valueOf(user.getId()));
+                    List<WxLog> wlog = wxLogService.selectWxLogList(logWhere);
+                    if(wlog.size() == 0) {
+                        // 新触发告警
+                        // 修改防伪码状态
+                        code.setCodeStatus("2");
+                        //添加扫码日志
+                        logWhere.setIp(request.getRemoteHost());
+                        logWhere.setTime(new Date());
+                        logWhere.setCreateTime(new Date());
+                        logWhere.setNumber((Long)(logList.size() + 1L));
+                        wxLogService.insertWxLog(logWhere);
+                        // 添加告警日志
+                        WxWarn warn = new WxWarn();
+                        warn.setwarn_num((Long)(logList.size() + 1L));
+                        warn.setwarn_time(new Date());
+                        warn.setwarn_ip(request.getRemoteHost());
+                        warn.setwarn_qrid(code.getId());
+                        warn.setwarn_state("1");
+                        warn.setwarn_user(user.getId());
+                        wxWarnService.insertWxWarn(warn);
+                    }
                     wxCodeService.updateWxCode(code);
-                    //添加扫码日志
-                    firstLog.setUserId(String.valueOf(user.getId()));
-                    firstLog.setIp(request.getRemoteHost());
-                    firstLog.setTime(new Date());
-                    wxLogService.insertWxLog(firstLog);
-                    //添加预警日志
-                    WxWarn warn = new WxWarn();
-                    warn.setwarn_num(1L);
-                    warn.setwarn_time(new Date());
-                    warn.setwarn_ip(request.getRemoteHost());
-                    warn.setwarn_qrid(code.getId());
-                    warn.setwarn_state("1");
-                    warn.setwarn_user(user.getId());
-                    wxWarnService.insertWxWarn(warn);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -262,10 +274,9 @@ public class WxUsersController extends BaseController
                     //更改防盗码状态
                     wxCodeService.updateWxCode(code);
                     //添加扫码日志
-                    firstLog.setId(user.getId());
                     firstLog.setIp(request.getRemoteHost());
                     firstLog.setTime(new Date());
-                    wxLogService.insertWxLog(firstLog);
+                    wxLogService.updateWxLog(firstLog);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -350,7 +361,7 @@ public class WxUsersController extends BaseController
             return error("用户不存在");
         }
         WxCode code = new WxCode();
-        code.setCreateLog(String.valueOf(user.getId()));
+        code.setCreateUser(String.valueOf(user.getId()));
         List<WxCode> codes = wxCodeService.selectWxCodeList(code);
         List<WxWarn> warns = new ArrayList<WxWarn>();
         for (WxCode wxCode : codes) {
