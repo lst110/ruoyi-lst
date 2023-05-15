@@ -394,4 +394,20 @@ public class WxBookController extends BaseController
         }
         return success(book);
     }
+
+    @Anonymous
+    @GetMapping("/get_book_by_code_id")
+    public AjaxResult getBookByCodeId(@Param(value = "id") String id)
+    {
+        WxCode code = wxCodeService.selectWxCodeById(id);
+        if(code == null) {
+            return error("数据不存在");
+        }
+
+        WxBook book = wxBookService.selectWxBookById(code.getBook_id());
+        if(book == null) {
+            return error("书籍信息不存在");
+        }
+        return success(book);
+    }
 }
