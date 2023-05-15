@@ -382,17 +382,32 @@ public class WxUsersController extends BaseController
         code.setCreateUser(String.valueOf(user.getId()));
         List<WxCode> codes = wxCodeService.selectWxCodeList(code);
         List<WxWarn> warns = new ArrayList<WxWarn>();
+        HashMap<String,String> tmp = new HashMap<>();
+        WxBook book = null;
+        String book_name = "";
+        for (WxCode codes2 : codes) {
+            book_name = tmp.get(codes2.getBook_id());
+            if(book_name == null){
+                book = wxBookService.selectWxBookById(codes2.getBook_id());
+                if(book != null) {
+                    book_name = book.getBookName();
+                    tmp.put(codes2.getBook_id(), book_name);
+                }
+            }
+            codes2.setCreateBy(book_name);
+        }
         for (WxCode wxCode : codes) {
             WxWarn warn = new WxWarn();
             warn.setwarn_qrid(wxCode.getId());
-            System.out.println(wxCode.getId());
-            System.out.println(warn);
             List<WxWarn> tmps = wxWarnService.selectWxWarnList(warn);
             if(!tmps.isEmpty()) {
+                for (WxWarn tmps2 : tmps) {
+                    tmps2.setCreateBy(wxCode.getCreateBy());
+                }
                 warns.addAll(tmps);
             }
         }
-        return success(code);
+        return success(warns);
     }
 
 }
