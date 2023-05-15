@@ -26,6 +26,9 @@ import com.ruoyi.wx.domain.WxCode;
 import com.ruoyi.wx.service.IWxBookService;
 import com.ruoyi.wx.service.IWxCodeService;
 import com.ruoyi.wx.service.IWxUsersService;
+
+import io.lettuce.core.dynamic.annotation.Param;
+
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.google.zxing.BarcodeFormat;
@@ -379,5 +382,16 @@ public class WxBookController extends BaseController
         byte[] compressedData = byteOutputStream.toByteArray();
         httpServletResponse.getOutputStream().write(compressedData);
         return;
+    }
+
+    @Anonymous
+    @GetMapping("/get_book_by_id")
+    public AjaxResult getBookById(@Param(value = "id") String id)
+    {
+        WxBook book = wxBookService.selectWxBookById(id);
+        if(book == null) {
+            return error("书籍信息不存在");
+        }
+        return success(book);
     }
 }

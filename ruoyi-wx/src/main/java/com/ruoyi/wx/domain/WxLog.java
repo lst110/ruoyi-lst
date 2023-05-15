@@ -37,8 +37,8 @@ public class WxLog extends BaseEntity
     private Long number;
 
     /** 扫码时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "扫码时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "扫码时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date time;
 
     /** 首次扫码ip */

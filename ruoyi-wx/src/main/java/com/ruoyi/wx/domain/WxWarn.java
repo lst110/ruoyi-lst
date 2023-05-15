@@ -37,8 +37,8 @@ public class WxWarn extends BaseEntity
     private String warn_state;
 
     /** 发生预警时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "发生预警时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "发生预警时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date warn_time;
 
     /** 预警触发用户id */
