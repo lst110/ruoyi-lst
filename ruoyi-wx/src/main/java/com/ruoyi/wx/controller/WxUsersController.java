@@ -392,7 +392,7 @@ public class WxUsersController extends BaseController
                 warns.addAll(tmps);
             }
         }
-        return success(warns);
+        return success(code);
     }
 
 }
